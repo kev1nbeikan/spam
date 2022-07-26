@@ -9,15 +9,17 @@ class NeedMembersDB(Exception):
     pass
 
 
-
 class User:
-    def __init__(self, db: UsersDB, tg_id: int, member_end: int = None, is_spamming: bool= False, c: int = 0):
+    def __init__(self, db: UsersDB, tg_id: int, member_end: int = None, is_spamming: bool = False, c: int = 0,
+                 is_stopped: bool = None, msg: str = None):
         self.tg_id = tg_id
         self.member_end = member_end
         self.db = db
         self.is_spam = is_spamming
         self.members_db: MembersDB = None
         self.count = c
+        self.is_stop = is_stopped
+        self.msg = msg
 
     def get_one_db(self):
         return self.db.get_user(user_id=self.tg_id)
@@ -28,8 +30,21 @@ class User:
     def update_count(self, c: int):
         return self.db.update_count(self.tg_id, c)
 
+    def update_msg(self, msg: str):
+        return self.db.update_msg(self.tg_id, msg)
+
+    def get_msg(self):
+        return self.db.get_msg(self.tg_id)
+
     def get_count(self):
-        return self.db.get_user_cc_spam(self.tg_id)
+        count = self.db.get_user_cc_spam(self.tg_id)
+        return count if count else 0
+
+    def get_stop(self):
+        return self.db.get_user_stop_state(self.tg_id)
+
+    def update_stop(self):
+        self.db.update_stop(self.tg_id, self.is_stop)
 
     def delete_one_db(self):
         self.db.delete_user(self.tg_id)
@@ -37,7 +52,7 @@ class User:
     def load_from_db(self):
         if not self.is_exists():
             return False
-        self.member_end, self.is_spam, self.count = self.get_one_db()
+        self.member_end, self.is_spam, self.count, self.is_stop, self.msg = self.get_one_db()
 
         return True
 
@@ -47,7 +62,10 @@ class User:
                 self.db.update_membership(self.tg_id, self.member_end)
             if self.is_spam is not None:
                 self.db.update_machine(self.tg_id, self.is_spam)
-
+            if self.is_stop is not None:
+                self.update_stop()
+            if self.msg is not None:
+                self.update_msg(self.msg)
 
             return
 
@@ -95,7 +113,6 @@ class User:
         res = self.get_one_db()
         return True if res is None or res else False
 
-
     def check_m(self):
         logging.info(self.member_end)
         if self.member_end is None:
@@ -108,7 +125,3 @@ class User:
 
     def __str__(self):
         return self.__dict__.__str__()
-
-
-
-

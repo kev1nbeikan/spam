@@ -17,10 +17,9 @@ from data import GettingMessageStrings, GettingGroupsStrings
 
 # @dp.message_handler(content_types=ContentType.ANY)
 # async def echo(message: types.Message):
-#     await message.answer(message.animation.file_id.__str__())
+#     await message.answer(message.photo[0].file_id)
 
 @dp.message_handler(Command(CommandsStrings.START), state='*')
-@rate_limit(5)
 async def menu(message: types.Message, state: FSMContext):
     user = User(db=users_db, tg_id=message.from_user.id)
     if not user.load_from_db():

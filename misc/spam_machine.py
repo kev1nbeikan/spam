@@ -33,7 +33,7 @@ class SpamMachine():
         for ch in channels:
             try:
                 count = 0
-                for member  in await self.bot.get_participants(ch):
+                for member in await self.bot.get_participants(ch):
                     user = member.username
                     if user is not None:
                         self.members.add(user)
@@ -61,16 +61,20 @@ class SpamMachine():
 
     async def start_spam(self, msg: str, user_db:UsersDB, user: User):
         user_id = user.tg_id
-
         if self.db is None:
             raise NeedDbError('нет бд')
         bots = self.get_bots()
         # logging.info(self.bots)
         s = bots.__next__()
+        user.update_count(0)
         count = 0
         if s is None:
+            user.is_stop = True
+            user.update_stop()
             return count
         tg = await s.connect()
+        user.is_stop = False
+        user.update_stop()
         for m in self.members:
             while True:
                 try:
@@ -81,6 +85,7 @@ class SpamMachine():
                     user.delete_member(m)
                     await asyncio.sleep(randint(10, 30))
                     count += 1
+                    user.update_count(count)
                     break
                 except Exception as ex:
                     # raise
@@ -93,12 +98,16 @@ class SpamMachine():
 
                     s.write_to_db()
                     s = bots.__next__()
-                    logging.info('next_bot')
+                    # logging.info('next_bot')
                     if s is None:
                         user_db.update_machine(user_id, False)
+                        user.is_stop = True
+                        user.update_stop()
                         return count
                     await asyncio.sleep(3)
                     tg = await s.connect()
+        user.is_stop = True
+        user.update_stop()
         user_db.update_machine(user_id, False)
         await tg.disconnect()
         return count

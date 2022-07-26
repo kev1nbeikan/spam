@@ -24,6 +24,10 @@ class CommandsExplainStrings:
 @dataclass
 class StartMenuStrings:
 
+    QUERY_CURRENT_SPAM = 'cc_spam_info'
+    CURRENT_SPAM = 'запущенная рассылка'
+    BOT = 'ваши аккаунты'
+    QUERY_BOT = 'look_bots'
     QUERY_SPAM = 'spam'
     QUERY_STATUS = 'status'
     QUERY_SUPPORT = ADMIN_CHAT_URL
@@ -46,8 +50,8 @@ class GettingGroupsStrings:
     NEXT_STEP = 'следующий шаг🏃‍♂'
     GET_OR_CHECK_BOTS = 'Вас услышат человек👨‍💻: {people}.\nАккаунтов🤖 для рассылки: {accs}\nВы можете отправить архивом(zip)🗄 новые аккаунты. '
     LOAD_DATA = 'Получение пользователей'
-    # FILE_SERVER_ID_ASK_MESSAGE = "AAMCAgADGQEAA4ti3Udf1b-do4M1hXjZcnO0AyR8CgACixgAAsWj6UpI27PzWhn1FgEAB20AAykE"
-    FILE_SERVER_ID_ASK_MESSAGE = 'CgACAgIAAxkBAAOWYt1LxOz44Z8_6Whp6lJdSnYRUZgAAosYAALFo-lKSNuz81oZ9RYpBA'
+    FILE_SERVER_ID_ASK_MESSAGE = "CgACAgIAAxkBAAIugGLeywvupVGM5GhEIryF_9ctPFUOAAJ-GAACxaPpSgcpLS4aBITNKQQ"
+    # FILE_SERVER_ID_ASK_MESSAGE = 'CgACAgIAAxkBAAOWYt1LxOz44Z8_6Whp6lJdSnYRUZgAAosYAALFo-lKSNuz81oZ9RYpBA'
 
 
 
@@ -70,8 +74,8 @@ class FilesUploadingStrings:
     CHECK_ACCS = 'проверить аккаунты🤖'
     CHECKING_BOTS = 'проверка ботов {count}'
     QUERY_CHECK_ACCS = 'check_accs'
-    # FILE_SERVER_ID_ASK_ZIP = 'AgACAgIAAxkBAAIOmmLT7UDpjdte9x5F0UFWEv-4MX6pAAKewTEbp8iZSrIdc8_0ueeNAQADAgADcwADKQQ'
-    FILE_SERVER_ID_ASK_ZIP = "AgACAgIAAxkBAAOAYt1F9GBHAAFiVwkG6Jan10WCmy_BAALdvTEbxaPpSu6GJFsv1KPKAQADAgADcwADKQQ"
+    FILE_SERVER_ID_ASK_ZIP = 'AgACAgIAAxkBAAIuimLey2FqGGo9tR_qNxsT0MowHiozAAKewTEbp8iZSrIdc8_0ueeNAQADAgADcwADKQQ'
+    # FILE_SERVER_ID_ASK_ZIP = "AgACAgIAAxkBAAOAYt1F9GBHAAFiVwkG6Jan10WCmy_BAALdvTEbxaPpSu6GJFsv1KPKAQADAgADcwADKQQ"
     EXAMPLE_OF_ORDER_ZIP = 'Пример организации файлов📂 в архиве'
 
 
@@ -136,3 +140,17 @@ class AdminPanelStrings:
 
     CHANGE_MSG_QUERY = 'ch_msg'
 
+
+@dataclass
+class ShowSpamStatusStrings:
+    TURN_QUERY = 'turn_spam'
+    TURN_OFF = 'остановить'
+    TURN_UP = 'запустить'
+    UPDATE = 'обновить'
+    STOPPING = 'Остановка рассылки'
+    WAIT = 'Рассылка еще запущена, но будет остановлена в течение 20 с'
+    UPDATE_ASK_QUERY = 'update_and_turn'
+    IS_SPAM = 'Состояние: <b>{is_spam}</b>\n'
+    INFO = 'Состояние: <b>{is_spam}</b>\n'  \
+           'О вас узнало: {count}\n' \
+           'Осталось: {remain}'

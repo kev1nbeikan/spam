@@ -15,6 +15,7 @@ async def check_membership():
     while True:
         try:
             for user in users_db.get_users():
+                print(user)
                 user = User(users_db, *user)
                 user.load_from_db()
                 was_end = user.member_end
@@ -22,9 +23,9 @@ async def check_membership():
                 if user.member_end is None and was_end is not None:
                     user.db.update_membership(user.tg_id, None)
                     await dp.bot.send_message(user.tg_id, MEMBER_END_WARN)
-                await asyncio.sleep(1)
+                await asyncio.sleep(3)
         except:
-            continue
+            raise
         await asyncio.sleep(60)
 
 
