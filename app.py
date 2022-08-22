@@ -1,14 +1,13 @@
 import asyncio
-import logging
 
 from aiogram.dispatcher import Dispatcher
 from aiogram.types import BotCommand
+from aiogram.utils import executor
 
-from data import CommandsStrings, CommandsExplainStrings, MEMBER_END_WARN
-from loader import admin_bot, users_db
-from misc.db_api import User
+from data import CommandsStrings, CommandsExplainStrings, MEMBER_END_WARN, ADMINS, AdminPanelStrings, SessionHandleStrings
+from loader import admin_bot, users_db, sessions_db
 from middlewares import setup
-from threading import Thread
+from misc.db_api import User
 
 
 async def check_membership():
@@ -29,11 +28,6 @@ async def check_membership():
         await asyncio.sleep(60)
 
 
-
-
-
-
-
 async def start_up(dp: Dispatcher):
     setup(dp)
     asyncio.create_task(check_membership())
@@ -42,14 +36,21 @@ async def start_up(dp: Dispatcher):
                                   BotCommand(CommandsStrings.ADMIN, CommandsExplainStrings.ADMIN)])
 
     await admin_bot.connect()
+    if not await admin_bot.is_user_authorized():
+        for admin in ADMINS:
+            await dp.bot.send_message(admin, AdminPanelStrings.AUTH_REQUIRE)
+
+
+async def main():
+    for session in sessions_db.get_all_by_dir_through_session_handle(559268824):
+        print(await session.check_acc())
+        print(session.write_to_db())
+
 
 if __name__ == '__main__':
-    # asyncio.run(main())
-    # from loader import users_db, members_db
-    # from misc.db_api import User
-
-    from aiogram import executor, Dispatcher
     from handlers import dp
-    executor.start_polling(dp, skip_updates=True, on_startup=start_up)
-    # print(sessions_db.get_all_by_ban(SessionHandleStrings.BOT_WORK))
-    pass
+
+    # await admin_bot.start()
+
+    # asyncio.run(main())
+    executor.start_polling(dp, on_startup=start_up)

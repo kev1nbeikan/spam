@@ -6,6 +6,7 @@ from telethon import TelegramClient
 from data import MAIN_DB_NAME, config, APP_ID, APP_HASH, QIWI_TOKEN
 from data import StartMenuStrings, GettingGroupsStrings
 from misc.db_api import BotFileDB, UsersDB, ShopDB, MessagesDB, MembersDB
+from misc import LocalFileHandler
 from glQiwiApi import QiwiP2PClient
 import logging
 
@@ -20,7 +21,6 @@ storage = MemoryStorage()
 dp = Dispatcher(bot, storage=storage)
 
 admin_bot = TelegramClient('new2', APP_ID, APP_HASH)
-
 qiwi_p2p_client = QiwiP2PClient(secret_p2p=QIWI_TOKEN)
 
 sessions_db = BotFileDB(MAIN_DB_NAME)
@@ -39,7 +39,11 @@ GettingGroupsStrings.GET_OR_CHECK_BOTS = lambda: message_db.get_section('bots').
 products_db.making_table_shop()
 # users_db.delete()
 users_db.make_table_users()
+users_db.reset_spam()
 
 members_db.making_members_table()
 # sessions_db.delete()
 sessions_db.make_table_bots()
+
+
+file_handler = LocalFileHandler()

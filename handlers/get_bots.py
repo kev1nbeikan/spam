@@ -13,7 +13,6 @@ from aiogram import types
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Text
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardRemove
-# from unrar import rarfile
 
 from loader import dp, sessions_db
 from data import DIR_TO_BOTS_FILES, FilesUploadingStrings, SessionHandleStrings, GettingGroupsStrings, GettingMessageStrings
@@ -22,10 +21,10 @@ from keyboard import check_sessions_data, next_step, is_correct
 from .states import Spam
 
 
-@dp.callback_query_handler(Text(GettingMessageStrings.CHANGE_QUERY), state=Spam.get_message)
 @dp.message_handler(Text(equals=GettingGroupsStrings.NEXT_STEP), state=Spam.get_bot_files)
-async def message_input(message: types.Message):
+async def message_input(message: types.Message, state: FSMContext):
     await Spam.get_message.set()
+    logging.info(await state.get_data())
     await message.answer(GettingMessageStrings.ASK_MESSAGE, reply_markup=ReplyKeyboardRemove())
 
 
@@ -162,10 +161,12 @@ async def checking_accs(call: types.CallbackQuery, callback_data : dict):
     check_count = 0
     result = ''
     async for s in check_sessions(folder, sessions_db):
+        logging.info(s)
         if s.ban_info == SessionHandleStrings.BOT_WORK:
             pass
         else:
             # logging.info(s.err_info)
+            s.delete(from_db=True, from_files=True)
             k -= 1
         check_count += 1
         await msg.edit_text(FilesUploadingStrings.CHECKING_BOTS.format(count=check_count))

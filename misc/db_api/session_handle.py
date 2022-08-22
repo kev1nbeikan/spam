@@ -1,17 +1,17 @@
+import dataclasses
 import logging
-import os
 
 from telethon import TelegramClient
 from telethon.errors import AuthKeyUnregisteredError
+from telethon.tl.functions.channels import JoinChannelRequest
 
-from data import SessionHandleStrings
-from .sessions import BotFileDB
 from data import DIR_TO_BOTS_FILES
+from data import SessionHandleStrings
 from misc.filehandlers import LocalFileHandler
 
 
 class Session:
-    def __init__(self, db: BotFileDB,
+    def __init__(self, db,
                  name: str = None,
                  folder: str = None,
                  ban_info: str = None,
@@ -32,8 +32,6 @@ class Session:
         self.path = DIR_TO_BOTS_FILES + '/' + self.folder + '/new/'
         self.path_file = f'{self.path}{self.name}.session'
         self.file_handler = LocalFileHandler()
-        if not self.file_handler.exists(self.path_file):
-            raise NoSuchFileError('Такой сессси не существует в ' + self.path_file)
 
         self.app_version = app_version
         self.device_model = device_model
@@ -43,6 +41,7 @@ class Session:
         self.phone_number = phone_number
         self.app_id = app_id
         self.app_hash = app_hash
+        self.CHANNEL_TO_TRY_MESSAGE = '@test_group_for_spam'
 
     def get_one_db(self, *args, **kwargs):
         return self.db.get_one(self.name, self.folder, *args, **kwargs)
@@ -83,9 +82,14 @@ class Session:
     def delete_from_db(self):
         self.db.delete_one(self.name, self.folder)
 
-    def delete(self):
-        # self.delete_from_db()
-        self.file_handler.remove(self.path_file)
+    def delete(self, from_files=False, from_db=True):
+        if from_files:
+            self.file_handler.remove(self.path_file)
+        if from_db:
+            self.delete_from_db()
+
+    def is_file_session_exists(self):
+        return self.file_handler.exists(self.path_file)
 
     async def check_acc(self) -> bool:
         """
@@ -101,12 +105,10 @@ class Session:
         telegram = TelegramClient(self.path + f'/{self.name}', self.app_id, self.app_hash)
         try:
             await telegram.connect()
-            await telegram.send_message(message='чек', entity='@Kev1nBeik0n')
+            await telegram((JoinChannelRequest(channel=self.CHANNEL_TO_TRY_MESSAGE)))
+            await telegram.send_message(message='test_message', entity=self.CHANNEL_TO_TRY_MESSAGE)
             await telegram.disconnect()
-
             self.ban_info = SessionHandleStrings.BOT_WORK
-            # закрытие файла сессии
-            # await telegram.db.close()
             return True
         except Exception as err:
 
@@ -115,13 +117,11 @@ class Session:
             else:
                 self.err_info = err.__str__()
             self.ban_info = SessionHandleStrings.BOT_DONT_WORK
-            # закрытие файла сессии
             await telegram.disconnect()
-            # await telegram.storage.close()
 
             return False
 
-    async def connect(self):
+    async def connect(self) -> TelegramClient | bool:
         telegram = TelegramClient(self.path + f'/{self.name}',
                                   api_id=self.app_id,
                                   api_hash=self.app_hash,
@@ -136,6 +136,10 @@ class Session:
             raise
             return False
 
+    def __str__(self):
+        return self.__dict__.__str__()
+
+    __repr__ = __str__
 
 class NoSuchFileError(Exception):
     pass

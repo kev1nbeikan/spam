@@ -90,7 +90,7 @@ async def confirm(callback: types.CallbackQuery, callback_data: dict, state: FSM
                 logging.info(user.member_end)
                 user.write_to_db()
                 await callback.message.answer(SelMembershipStrings.SUCCESS_BILL)
-                if await state.get_state() == Spam.get_message.state:
+                if await state.get_state() == Spam.get_repeat.state:
                     await make_spam(callback, user, state)
             else:
                 await callback.message.answer(SelMembershipStrings.NONE_BILL)

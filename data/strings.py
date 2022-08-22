@@ -1,9 +1,15 @@
-from dataclasses import dataclass
 ADMIN_CHAT_URL = 'https://t.me/Durovs_Son'
 
 MEMBER_END_WARN = 'Подписка кончилась🕔'
 
-@dataclass
+MISS = 'пропустить'
+SUCCESS_STRING = 'успешно'
+FIFTEEN = '15'
+FIVE = '5'
+ONE = '1'
+INCORRECT_INPUT = 'неверный ввод'
+
+
 class CommandsStrings:
     START = 'start'
     EXIT = 'exit'
@@ -12,6 +18,7 @@ class CommandsStrings:
     GIVE = 'give'
     ITEMS = 'items'
     MESSAGES = 'messages'
+    AUTH = 'auth'
 
 
 class CommandsExplainStrings:
@@ -21,9 +28,7 @@ class CommandsExplainStrings:
     ADMIN = 'admin🤚'
 
 
-@dataclass
 class StartMenuStrings:
-
     QUERY_CURRENT_SPAM = 'cc_spam_info'
     CURRENT_SPAM = 'запущенная рассылка'
     BOT = 'ваши аккаунты'
@@ -41,7 +46,6 @@ class StartMenuStrings:
     MENU = 'меню'
 
 
-@dataclass
 class GettingGroupsStrings:
     ASK_MESSAGE = 'Отправьте <a href="https://t.me/learn_for_shaida_bot">@имена_групп</a> сообщениями, разделяя пробелами или новой строкой.\n<b>доступны только открытые группы</b>'
     IS_NOT_SUPERGROUP = '❗нет доступа к закрытой🔒 группе'
@@ -54,21 +58,17 @@ class GettingGroupsStrings:
     # FILE_SERVER_ID_ASK_MESSAGE = 'CgACAgIAAxkBAAOWYt1LxOz44Z8_6Whp6lJdSnYRUZgAAosYAALFo-lKSNuz81oZ9RYpBA'
 
 
-
-
-@dataclass
 class SessionHandleStrings:
     ASKING_NEW_AUTH = 'Требует новой авторизации'
     BOT_WORK = 'work'
     BOT_DONT_WORK = '-'
 
 
-@dataclass
 class FilesUploadingStrings:
     WRONG_TYPE_FILE = '❗Файл неверного формата (доступны .zip)'
     WRONG_SIZE_FILE = 'Слишком большой размер(<100 МБ)'
     WRONG_CONTENT = '❗Содержимое файла не соответствует шаблону'
-    CHECKING_FILES  = 'Разархивация и проверка файла'
+    CHECKING_FILES = 'Разархивация и проверка файла'
     SUCCESS = 'Успешно✅'
     SUCCESS_WITH_ISSUE = 'Успешно✅ загружены файлы, кроме'
     CHECK_ACCS = 'проверить аккаунты🤖'
@@ -79,22 +79,20 @@ class FilesUploadingStrings:
     EXAMPLE_OF_ORDER_ZIP = 'Пример организации файлов📂 в архиве'
 
 
-
-@dataclass
 class GettingMessageStrings:
+    ASK_REPEAT_FROM_ONE_ACC = 'Сколько сообщений отправлять с каждого аккаунта?(доступен ввод с клавиатуры)'
     ASK_MESSAGE = 'Введите ваше сообщение для рассылки'
-    IS_CORRECT = 'начать рассылку'
+    IS_CORRECT = 'правильно'
+    START_SPAM = 'начать рассылку'
     CHANGE = 'изменить'
     IS_CORRECT_QUERY = 'correct'
     CHANGE_QUERY = 'change'
-    START_SPAM = 'Рассылка началась...Ожидайте окончания'
+    SPAM_IS_START = 'Рассылка началась...Ожидайте окончания'
     RESULT = 'О вас узнали человек: {count}'
     ASK_PAY_MSG = 'Для того, чтобы продолжить нужно приобрести подписку.'
     STOP_SPAM = 'Остановить спам'
 
 
-
-@dataclass
 class SelMembershipStrings:
     QUERY_SELL = 'buy_ms'
     QUERY_PAY = 'pay_ms'
@@ -114,8 +112,11 @@ class SelMembershipStrings:
     NONE_BILL = 'Оплаты не было🚫'
 
 
-@dataclass
 class AdminPanelStrings:
+    CONNECT_BOT = 'соединиться'
+    CONNECT_BOT_QUERY = 'connect_bot'
+    DELETE_BOT = 'удалить'
+    DELETE_BOT_QUERY = 'delete_bot'
     PANEL = f'/{CommandsStrings.GIVE} изменить подиску юзера\n/{CommandsStrings.ITEMS} продукты\n/{CommandsStrings.MESSAGES} редактировать тект\n/{CommandsStrings.EXIT} выход'
 
     ASK_ID = 'Введите айди юзера'
@@ -139,9 +140,11 @@ class AdminPanelStrings:
     SUCCESS = 'успешно'
 
     CHANGE_MSG_QUERY = 'ch_msg'
+    AUTH_REQUIRE = 'нужна авторизация админ боту'
+    ASK_CODE = 'введите код'
+    ASK_IF_NEED_PASSWORD = 'введите пароль для двухфакторки, если требуется'
 
 
-@dataclass
 class ShowSpamStatusStrings:
     TURN_QUERY = 'turn_spam'
     TURN_OFF = 'остановить'
@@ -151,6 +154,16 @@ class ShowSpamStatusStrings:
     WAIT = 'Рассылка еще запущена, но будет остановлена в течение 20 с'
     UPDATE_ASK_QUERY = 'update_and_turn'
     IS_SPAM = 'Состояние: <b>{is_spam}</b>\n'
-    INFO = 'Состояние: <b>{is_spam}</b>\n'  \
+    INFO = 'Состояние: <b>{is_spam}</b>\n' \
            'О вас узнало: {count}\n' \
            'Осталось: {remain}'
+
+
+class ShowBotsStrings:
+    DELETE_ALL_MEMBERS = 'очистить базу спама'
+    DELETE_NOTWORKING_BOTS = 'убрать нерабочих'
+    DELETE_ALL_MEMBERS_QUERY = 'delete_members'
+    DELETE_NOTWORKING_BOTS_QUERY = 'delete_notworking_bots'
+    DELETE_ALL_BOTS_QUERY = 'delete_bots'
+    DELETE_ALL_BOTS = 'очистить'
+    GET_OR_CHECK_BOTS = 'Аккаунтов🤖 для рассылки работают: {work}/{accs}\n'

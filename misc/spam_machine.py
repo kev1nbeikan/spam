@@ -1,14 +1,14 @@
 import asyncio
 import dataclasses
 import logging
+from random import randint
 
 from aiogram import types
 from telethon import TelegramClient
 from telethon.errors.rpcerrorlist import ChatAdminRequiredError
+
 from data import GettingGroupsStrings, SessionHandleStrings
 from .db_api import Session, BotFileDB, UsersDB, User
-from random import randint
-
 from .db_api.session_handle import NoSuchFileError
 
 
@@ -55,12 +55,12 @@ class SpamMachine():
     def load_bots(self, bots: set[tuple[str, str]]):
         self.bots = bots
 
-
     def set_db(self, db: BotFileDB):
         self.db = db
 
-    async def start_spam(self, msg: str, user_db:UsersDB, user: User):
+    async def start_spam(self, msg: str, user_db: UsersDB, user: User, message: types.Message, repeat_one_acc):
         user_id = user.tg_id
+        msg = str(msg)
         if self.db is None:
             raise NeedDbError('нет бд')
         bots = self.get_bots()
@@ -69,64 +69,71 @@ class SpamMachine():
         user.update_count(0)
         count = 0
         if s is None:
-            user.is_stop = True
-            user.update_stop()
+            self._finish_spam(user_db, user_id, user)
             return count
         tg = await s.connect()
         user.is_stop = False
         user.update_stop()
+        from_one_acc_sent_count = 0
         for m in self.members:
+            user.delete_member(m)
             while True:
                 try:
-                    if not user_db.get_user_machine(user_id):
+                    if not user_db.get_user_machine_is_spam(user_id):
+                        self._finish_spam(user_db, user_id, user)
+                        await tg.disconnect()
                         return count
                     # print(user_db.get_user_machine(user_id))
+                    logging.info(m)
                     await tg.send_message(message=msg, entity=m)
-                    user.delete_member(m)
-                    await asyncio.sleep(randint(10, 30))
+                    await message.answer(f'Отправлено в {m}')
                     count += 1
                     user.update_count(count)
+                    from_one_acc_sent_count += 1
+                    await asyncio.sleep(randint(10, 30))
+                    if from_one_acc_sent_count == repeat_one_acc:
+                        raise Exception('RepeatFromOneAccLimitReached')
                     break
                 except Exception as ex:
-                    # raise
                     await tg.disconnect()
                     s.err_info = ex.__str__()
                     s.ban_info = SessionHandleStrings.BOT_DONT_WORK
 
                     if s.err_info == 'The user has been deleted/deactivated (caused by ResolveUsernameRequest)':
-                        s.delete()
+                        s.delete(from_files=True, from_db=True)
 
                     s.write_to_db()
                     s = bots.__next__()
-                    # logging.info('next_bot')
+                    logging.info('next_bot')
                     if s is None:
-                        user_db.update_machine(user_id, False)
-                        user.is_stop = True
-                        user.update_stop()
+                        self._finish_spam(user_db, user_id, user)
                         return count
+                    from_one_acc_sent_count = 0
                     await asyncio.sleep(3)
                     tg = await s.connect()
-        user.is_stop = True
-        user.update_stop()
-        user_db.update_machine(user_id, False)
+        self._finish_spam(user_db, user_id, user)
         await tg.disconnect()
         return count
+
+    def _finish_spam(self, user_db, user_id, user):
+        user.is_stop = True
+        user.is_spam = False
+        user.update_stop()
+        user.update_machine()
 
     def get_bots(self):
         if self.db is None:
             raise NeedDbError('нет бд')
 
         for name, folder in self.bots:
-            try:
-                s = Session(db=self.db, name=name, folder=folder)
-                s.load_from_db()
-                logging.info(name)
-            except NoSuchFileError as ex:
-                logging.info(ex.__str__())
+            s = Session(db=self.db, name=name, folder=folder)
+            s.load_from_db()
+            if not s.is_file_session_exists():
+                s.delete(from_db=True)
                 continue
+
             yield s
         yield None
-
 
 
 class NeedDbError(Exception):

@@ -2,7 +2,7 @@ import asyncio
 import logging
 
 from aiogram import types, Dispatcher
-from aiogram.dispatcher import DEFAULT_RATE_LIMIT
+from aiogram.dispatcher import DEFAULT_RATE_LIMIT, FSMContext
 from aiogram.dispatcher.handler import CancelHandler, current_handler
 from aiogram.dispatcher.middlewares import BaseMiddleware
 from aiogram.utils.exceptions import Throttled

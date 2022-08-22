@@ -58,6 +58,7 @@ def change_telethon_type(dirs: list):
     from loader import sessions_db
     for folder in dirs:
         work_path = f'{DIR_TO_BOTS_FILES}/{folder}'
+        print(work_path)
         path_old = work_path + '/old'
         path_new = work_path + '/new'
 
@@ -79,7 +80,7 @@ def change_telethon_type(dirs: list):
                 str_lst = str(last)
                 path_to_new_session = f'{path_new}/{str_lst}.session'
                 last += 1
-
+                print(path_to_new_session)
 
                 if exists(path_to_session) and not exists(path_to_new_session):
                     old = TelethonSessionDB(path_to_session)
@@ -100,7 +101,7 @@ def change_telethon_type(dirs: list):
                     s.write_to_db()
                     os.remove(path_to_session)
                     os.remove(path_to_json)
-
+                    print(path_to_new_session)
                 else:
                     result += f'Бот {filename} не имеет файла сессии \n'
 
@@ -112,8 +113,7 @@ async def check_sessions(folder, sessions_db):
     for filename in os.listdir(work_path):
         s = Session(sessions_db, filename.replace('.session', ''), folder)
         s.load_from_db()
-        if not await s.check_acc():
-            s.delete()
+        await s.check_acc()
         yield s
 
 

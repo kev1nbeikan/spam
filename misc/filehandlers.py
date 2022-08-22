@@ -1,3 +1,4 @@
+import logging
 import os
 from os import mkdir
 from os.path import exists
@@ -18,6 +19,7 @@ class FileHandlerBase:
 
     def zp_extract(self, zp, path):
         pass
+
 
 class LocalFileHandler(FileHandlerBase):
     def open(self, file):
@@ -44,3 +46,10 @@ class LocalFileHandler(FileHandlerBase):
         if self.exists(path):
             return os.listdir(path)
         return []
+
+    def remove_all_from_dir(self, path: str):
+        print(self.listdir(path))
+        if not path.endswith('/'):
+            path += '/'
+        for file in self.listdir(path):
+            self.remove(path + file)

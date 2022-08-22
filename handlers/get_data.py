@@ -3,17 +3,23 @@ from aiogram.dispatcher.filters import Text
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.types.reply_keyboard import ReplyKeyboardRemove
 
-from keyboard import next_step, check_sessions_data
+from keyboard import next_step, check_sessions_data, stop_spam
 from misc import SpamMachine, get_file_count
-from data import DIR_TO_BOTS_FILES, FilesUploadingStrings
+from data import DIR_TO_BOTS_FILES, FilesUploadingStrings, GettingMessageStrings
 from data import StartMenuStrings, GettingGroupsStrings
 from aiogram import types
+
+from misc.db_api import User
 from .states import Spam
-from loader import admin_bot, dp
+from loader import admin_bot, dp, users_db
 
 
 @dp.callback_query_handler(Text(StartMenuStrings.QUERY_SPAM))
 async def ask_for_groups(call: types.CallbackQuery, state: FSMContext):
+    user = User(db=users_db, tg_id=call.from_user.id)
+    if user.get_spam_state():
+        await call.message.answer(GettingMessageStrings.SPAM_IS_START, reply_markup=stop_spam)
+
     await call.message.answer_animation(animation=GettingGroupsStrings.FILE_SERVER_ID_ASK_MESSAGE, caption=GettingGroupsStrings.ASK_MESSAGE, reply_markup=ReplyKeyboardRemove())
     await Spam.first()
     await state.update_data(mashine=set())

@@ -2,6 +2,7 @@ import dataclasses
 from .sessions import DBBaseObject
 from .users import UsersDB
 
+
 class MembersDB(DBBaseObject):
     NAME_OF_TABLE = 'members'
     IDENTIFIER_LINE_NAME = 'id'
@@ -20,7 +21,7 @@ class MembersDB(DBBaseObject):
         f = self.execute(command, (user_id,), fetch_all=True)
         if f is None:
             return ()
-        return f
+        return list(map(lambda x: x[0], f))
 
     def delete_member(self, user_id: int, member_id:int):
         command = f'DELETE FROM {self.NAME_OF_TABLE} WHERE {self.IDENTIFIER_LINE_NAME} = ? and {self.IDENTIFIER_MEMBER_LINE_NAME} = ?;'
@@ -32,6 +33,11 @@ class MembersDB(DBBaseObject):
                     {self.IDENTIFIER_MEMBER_LINE_NAME}) VALUES (?, ?);'''
 
         self.execute(command, (user_id, member_id), commit=True)
+
+    def delete_members_by_id(self, user_id: int):
+        command = f'DELETE FROM {self.NAME_OF_TABLE} WHERE {self.IDENTIFIER_LINE_NAME} = ?;'
+        self.execute(command, (user_id, ), commit=True)
+
 
 
 
